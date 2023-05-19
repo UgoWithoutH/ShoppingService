@@ -85,7 +85,7 @@ public class BookService {
                             new StringBuilder(stockUrl).append("/book/").append(isbn).append("/quantity/add").toString(),
                             Void.class,
                             new HashMap<>() {{
-                                put("quantity", wholeSealerMaxQuantity);
+                                put("quantity", missingBooksToOrder);
                             }}
                     );
 
