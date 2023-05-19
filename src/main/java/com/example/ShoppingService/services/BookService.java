@@ -1,7 +1,5 @@
 package com.example.ShoppingService.services;
 
-import com.example.ShoppingService.exceptions.InvalidISBNException;
-import com.example.ShoppingService.models.Account;
 import com.example.ShoppingService.utils.HttpRequestHelper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,12 +26,14 @@ public class BookService {
     @Value("${service.wholeSealerService.maxQuantity}")
     private Integer wholeSealerMaxQuantity;
 
-    public ResponseEntity<Integer> getNumberOfBooksByISBN(String isbn, Account account) {
+    public ResponseEntity<Integer> getNumberOfBooksByISBN(String isbn, String accountLogin) {
         try {
             ResponseEntity<Integer> responseStock = httpRequestHelper.get(
                     new StringBuilder(stockUrl).append("/book/").append(isbn).append("/stock").toString(),
                     Integer.class,
-                    null
+                    new HashMap<>() {{
+                        put("accountLogin", accountLogin);
+                    }}
             );
             log.info("{} books of \"{}\" have been found", responseStock.getBody(), isbn);
             return responseStock;
@@ -44,13 +44,13 @@ public class BookService {
         }
     }
 
-    public ResponseEntity<Void> orderBook(String isbn, Integer quantity, Account account) {
-        ResponseEntity<Integer> responseNumberOfBooks = getNumberOfBooksByISBN(isbn, account);
+    public ResponseEntity<Void> orderBook(String isbn, Integer quantity, String accountLogin) {
+        ResponseEntity<Integer> responseNumberOfBooks = getNumberOfBooksByISBN(isbn, accountLogin);
         Integer numberOfBooks = responseNumberOfBooks.getBody();
 
         if(numberOfBooks!= null) {
             if(numberOfBooks < quantity){
-                ResponseEntity<Void> responseOrder = orderProcess(isbn, quantity, numberOfBooks, account);
+                ResponseEntity<Void> responseOrder = orderProcess(isbn, quantity, numberOfBooks, accountLogin);
                 if (responseOrder != null) return responseOrder;
             }
             try {
@@ -60,6 +60,7 @@ public class BookService {
                         Void.class,
                         new HashMap<>() {{
                             put("quantity", quantity);
+                            put("accountLogin", accountLogin);
                         }}
                 );
                 return ResponseEntity.status(responseStockRemove.getStatusCode()).build();
@@ -74,7 +75,7 @@ public class BookService {
         }
     }
 
-    private ResponseEntity<Void> orderProcess(String isbn, Integer quantity, Integer numberOfBooks, Account account) {
+    private ResponseEntity<Void> orderProcess(String isbn, Integer quantity, Integer numberOfBooks, String accountLogin) {
         int missingBooks = quantity - numberOfBooks;
         log.info("order process launched, {} books have been found but {} are required", numberOfBooks, quantity);
         try {
@@ -90,6 +91,7 @@ public class BookService {
                         Void.class,
                         new HashMap<>() {{
                             put("quantity", wholeSealerMaxQuantity);
+                            put("accountLogin", accountLogin);
                         }}
                 );
 
@@ -100,6 +102,7 @@ public class BookService {
                             Void.class,
                             new HashMap<>() {{
                                 put("quantity", missingBooksToOrder);
+                                put("accountLogin", accountLogin);
                             }}
                     );
 
