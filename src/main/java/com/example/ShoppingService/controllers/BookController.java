@@ -19,25 +19,15 @@ public class BookController {
     @Autowired
     private BookService bookService;
 
-    @GetMapping("/stock/{ISBN}")
+    @GetMapping("/{ISBN}/stock")
     public ResponseEntity<Integer> getNumberOfBooksByISBN(@PathVariable("ISBN") String isbn){
-        try {
-            ResponseEntity<Integer> responseEntity = bookService.getNumberOfBooksByISBN(isbn);
-            return ResponseEntity.status(responseEntity.getStatusCode()).body(responseEntity.getBody());
-        } catch (InvalidISBNException e) {
-            log.error(e.getMessage());
-            return ResponseEntity.badRequest().build();
-        }
+        ResponseEntity<Integer> responseEntity = bookService.getNumberOfBooksByISBN(isbn);
+        return ResponseEntity.status(responseEntity.getStatusCode()).body(responseEntity.getBody());
     }
 
-    @PostMapping("/order/{ISBN}")
+    @PatchMapping("/{ISBN}/order")
     public ResponseEntity<Void> orderBook(@PathVariable("ISBN") String isbn, @RequestParam("quantity") Integer quantity){
-        try {
-            ResponseEntity<Void> responseEntity = bookService.orderBook(isbn, quantity);
-            return ResponseEntity.status(responseEntity.getStatusCode()).build();
-        } catch (InvalidISBNException e) {
-            log.error(e.getMessage());
-            return ResponseEntity.badRequest().build();
-        }
+        ResponseEntity<Void> responseEntity = bookService.orderBook(isbn, quantity);
+        return ResponseEntity.status(responseEntity.getStatusCode()).build();
     }
 }
