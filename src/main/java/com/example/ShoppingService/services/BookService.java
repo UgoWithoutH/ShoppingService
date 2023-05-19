@@ -35,7 +35,7 @@ public class BookService {
                         put("accountLogin", accountLogin);
                     }}
             );
-            log.info("{} books of \"{}\" have been found", responseStock.getBody(), isbn);
+            log.info("{} books \"{}\" have been found", responseStock.getBody(), isbn);
             return responseStock;
         }
         catch (WebClientResponseException ex){
@@ -54,7 +54,7 @@ public class BookService {
                 if (responseOrder != null) return responseOrder;
             }
             try {
-                log.info("Recovery of {} books of \"{}\" in stock", quantity, isbn);
+                log.info("Recovery of {} books \"{}\" in stock", quantity, isbn);
                 ResponseEntity<Void> responseStockRemove = httpRequestHelper.patch(
                         new StringBuilder(stockUrl).append("/book/").append(isbn).append("/quantity/remove").toString(),
                         Void.class,
@@ -85,7 +85,7 @@ public class BookService {
                                 wholeSealerMaxQuantity :
                                 missingBooks;
 
-                log.info("launching the order of {} books of \"{}\"", missingBooksToOrder, isbn);
+                log.info("launching the order of {} books \"{}\"", missingBooksToOrder, isbn);
                 ResponseEntity<Void> responseWholeSealerOrder = httpRequestHelper.post(
                         new StringBuilder(wholeSealerUrl).append("/book/").append(isbn).append("/order").toString(),
                         Void.class,
@@ -96,7 +96,7 @@ public class BookService {
                 );
 
                 if (responseWholeSealerOrder.getStatusCode().is2xxSuccessful()) {
-                    log.info("addition of {} books of \"{}\" in stock", missingBooksToOrder, isbn);
+                    log.info("addition of {} books \"{}\" in stock", missingBooksToOrder, isbn);
                     ResponseEntity<Void> responseStockAdd = httpRequestHelper.patch(
                             new StringBuilder(stockUrl).append("/book/").append(isbn).append("/quantity/add").toString(),
                             Void.class,
