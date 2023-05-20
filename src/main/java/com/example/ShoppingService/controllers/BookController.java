@@ -3,6 +3,7 @@ package com.example.ShoppingService.controllers;
 import com.example.ShoppingService.services.BookService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -14,7 +15,7 @@ public class BookController {
     @Autowired
     private BookService bookService;
 
-    @GetMapping("/{ISBN}/stock")
+    @GetMapping(value = "/{ISBN}/stock", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Integer> getNumberOfBooksByISBN(@PathVariable("ISBN") String isbn, @RequestParam String accountLogin){
         log.info("{} - {} : Get request received from account \"{}\" to get number of books \"{}\"", accountLogin, isbn, accountLogin, isbn);
         ResponseEntity<Integer> responseEntity = bookService.getNumberOfBooksByISBN(isbn, accountLogin);
